@@ -2,16 +2,13 @@
     "mode": "All",
     "parameters": {
         "ids": {
-            "type": "Array",
+            "type": "array",
             "metadata": {
-                "description": "The owner ids",
+                "description": "The service principal ids",
                 "strongType": "ids",
-                "displayName": "The owner ids"
+                "displayName": "The service principal ids"
             },
-            "defaultValue": [
-                "{USER_ID_WITH_OWNER_ROLE_ASSIGNED}",
-                "{ANOTHER_USER_ID_WITH_OWNER_ROLE_ASSIGNED}"
-            ]
+            "defaultValue": []
         }
     },
     "policyRule": {
@@ -26,8 +23,8 @@
                     "like": "*8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
                 },
                 {
-                    "value": "[length(parameters('ids'))]",
-                    "greaterOrEquals": 3
+                    "field": "Microsoft.Authorization/roleAssignments/PrincipalId",
+                    "in": "[parameters(''ids'')]"
                 }
             ]
         },
