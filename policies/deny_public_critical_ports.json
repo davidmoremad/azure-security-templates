@@ -1,0 +1,147 @@
+{
+    "properties": {
+      "mode": "All",
+      "parameters": {
+        "ports": {
+          "type": "Array",
+          "metadata": {
+            "description": "List of critical ports to deny",
+            "strongType": "ports",
+            "displayName": "Critical ports"
+          },
+          "defaultValue": [
+            "*",
+            "20",
+            "20-20",
+            "21",
+            "21-21",
+            "22",
+            "22-22",
+            "25",
+            "25-25",
+            "53",
+            "53-53",
+            "137",
+            "137-137",
+            "138",
+            "138-138",
+            "139",
+            "139-139",
+            "161",
+            "161-161",
+            "162",
+            "162-162",
+            "389",
+            "389-389",
+            "445",
+            "445-445",
+            "636",
+            "636-636",
+            "990",
+            "990-990",
+            "1521",
+            "1521-1521",
+            "2483",
+            "2483-2483",
+            "3020",
+            "3020-3020",
+            "3306",
+            "3306-3306",
+            "3389",
+            "3389-3389",
+            "5432",
+            "5432-5432",
+            "5989",
+            "5989-5989",
+            "7001",
+            "7001-7001",
+            "27017",
+            "27017-27017",
+            "0-65535"
+          ]
+        },
+        "ips": {
+          "type": "Array",
+          "metadata": {
+            "description": "Whitelist of ips",
+            "strongType": "ips",
+            "displayName": "Whitelist of ips"
+          },
+          "defaultValue": [
+            "YOUR_VPN_RANGE/24",
+            "ANOTHER_VPN_RANGE/32",
+            "ANOTHER_IP_RANGE/32"
+          ]
+        }
+      },
+      "policyRule": {
+        "if": {
+          "allOf": [
+            {
+              "field": "type",
+              "equals": "Microsoft.Network/networkSecurityGroups/securityRules"
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Network/networkSecurityGroups/securityRules/access",
+                  "equals": "Allow"
+                },
+                {
+                  "field": "Microsoft.Network/networkSecurityGroups/securityRules/direction",
+                  "equals": "Inbound"
+                },
+                {
+                  "anyOf": [
+                    {
+                      "field": "Microsoft.Network/networkSecurityGroups/securityRules/destinationPortRange",
+                      "in": "[parameters('ports')]"
+                    },
+                    {
+                      "not": {
+                        "field": "Microsoft.Network/networkSecurityGroups/securityRules/destinationPortRanges[*]",
+                        "notIn": "[parameters('ports')]"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "anyOf": [
+                    {
+                      "allOf": [
+                        {
+                          "field": "Microsoft.Network/networkSecurityGroups/securityRules/sourceAddressPrefix",
+                          "notIn": "[parameters('ips')]"
+                        },
+                        {
+                          "field": "Microsoft.Network/networkSecurityGroups/securityRules/sourceAddressPrefixes[*]",
+                          "exists": false
+                        }
+                      ]
+                    },
+                    {
+                      "allOf": [
+                        {
+                          "not": {
+                            "field": "Microsoft.Network/networkSecurityGroups/securityRules/sourceAddressPrefixes[*]",
+                            "in": "[parameters('ips')]"
+                          }
+                        },
+                        {
+                          "field": "Microsoft.Network/networkSecurityGroups/securityRules/sourceAddressPrefix",
+                          "exists": false
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "then": {
+          "effect": "deny"
+        }
+      }
+    }
+  }

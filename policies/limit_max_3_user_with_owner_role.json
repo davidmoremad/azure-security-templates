@@ -1,0 +1,38 @@
+{
+    "mode": "All",
+    "parameters": {
+        "ids": {
+        "type": "Array",
+        "metadata": {
+            "description": "The owner ids",
+            "strongType": "ids",
+            "displayName": "The owner ids"
+        },
+        "defaultValue": [
+            "{USER_ID_WITH_OWNER_ROLE_ASSIGNED}",
+            "{ANOTHER_USER_ID_WITH_OWNER_ROLE_ASSIGNED}"
+        ]
+        }
+    },
+    "policyRule": {
+        "if": {
+        "allOf": [
+            {
+            "field": "type",
+            "equals": "Microsoft.Authorization/roleAssignments"
+            },
+            {
+            "field": "Microsoft.Authorization/roleAssignments/roleDefinitionId",
+            "like": "*8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+            },
+            {
+            "value": "[length(parameters('ids'))]",
+            "greaterOrEquals": 3
+            }
+        ]
+        },
+        "then": {
+        "effect": "deny"
+        }
+    }
+}
